@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>SD 画图</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="app">
+  <!-- 自然语言输入 -->
+  <div class="section">
+    <textarea id="nlInput" placeholder="用中文描述画面，比如：夕阳下一个穿校服的女孩站在天台" rows="3"></textarea>
+    <button id="translateBtn" class="btn secondary">AI 增强</button>
+  </div>
+
+  <!-- SD 提示词 (翻译后自动填充) -->
+  <div class="section" id="promptSection">
+    <textarea id="promptInput" placeholder="正向提示词 (英文标签, 逗号分隔)"></textarea>
+    <details id="negDetail">
+      <summary>负面提示词</summary>
+      <textarea id="negInput" placeholder="负面提示词"></textarea>
+    </details>
+  </div>
+
+  <!-- 分辨率 -->
+  <div class="section">
+    <details id="resDetail">
+      <summary id="resSummary">分辨率: 960 × 1280 (竖屏 3:4)</summary>
+      <div class="res-row">
+        <div class="preset-row">
+          <button class="btn preset" data-w="576" data-h="1024">9:16</button>
+          <button class="btn preset" data-w="768" data-h="1024">3:4</button>
+          <button class="btn preset" data-w="1024" data-h="1024">1:1</button>
+          <button class="btn preset" data-w="1024" data-h="768">4:3</button>
+          <button class="btn preset" data-w="1024" data-h="576">16:9</button>
+        </div>
+        <div class="res-control">
+          <label>宽 <span id="wVal">960</span></label>
+          <div class="res-input-group">
+            <input type="range" id="widthSlider" min="256" max="2048" step="8" value="960">
+            <input type="number" id="widthInput" min="256" max="2048" step="8" value="960">
+          </div>
+        </div>
+        <button id="swapBtn" class="btn icon" title="交换宽高">↔</button>
+        <div class="res-control">
+          <label>高 <span id="hVal">1280</span></label>
+          <div class="res-input-group">
+            <input type="range" id="heightSlider" min="256" max="2048" step="8" value="1280">
+            <input type="number" id="heightInput" min="256" max="2048" step="8" value="1280">
+          </div>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <!-- 高级参数 -->
+  <div class="section">
+    <details id="advDetail">
+      <summary id="advSummary">高级参数: steps 20 / CFG 7 / DPM++ 2M Karras</summary>
+      <div class="adv-grid">
+        <label>Steps <input type="number" id="steps" value="20" min="1" max="100"></label>
+        <label>CFG <input type="number" id="cfg" value="7" min="1" max="30" step="0.5"></label>
+        <label>Seed <input type="number" id="seed" value="-1" min="-1"></label>
+        <label>采样器
+          <select id="sampler">
+            <option>DPM++ 2M Karras</option>
+            <option>Euler a</option>
+            <option>Euler</option>
+            <option>DPM++ 2M SDE Karras</option>
+            <option>DPM++ 2M</option>
+            <option>DDIM</option>
+          </select>
+        </label>
+      </div>
+    </details>
+  </div>
+
+  <!-- 生成按钮 + 状态 -->
+  <div class="section">
+    <button id="generateBtn" class="btn primary full">生成</button>
+    <div id="statusBar" class="status hidden"></div>
+  </div>
+
+  <!-- 结果展示 -->
+  <div class="section" id="resultSection" style="display:none;">
+    <img id="resultImg" src="" alt="生成结果">
+    <div id="resultInfo" class="info-text"></div>
+  </div>
+
+  <!-- 历史记录 -->
+  <div class="section">
+    <h3>历史记录</h3>
+    <div id="historyList" class="history-scroll"></div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

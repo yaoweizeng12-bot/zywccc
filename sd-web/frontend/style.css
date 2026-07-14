@@ -1,0 +1,203 @@
+/* ---- 基础重置 ---- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #1a1a2e;
+  --surface: #16213e;
+  --border: #0f3460;
+  --primary: #e94560;
+  --primary-dim: #b8304f;
+  --text: #eaeaea;
+  --text-dim: #aaa;
+  --radius: 10px;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+html { font-size: 16px; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 12px;
+  min-height: 100dvh;
+}
+
+/* ---- 通用 ---- */
+.section {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+textarea, input, select {
+  font-family: var(--font);
+  font-size: 16px;          /* 防 iOS 缩放 */
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  width: 100%;
+  resize: vertical;
+  -webkit-appearance: none;
+}
+
+textarea:focus, input:focus, select:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+textarea { min-height: 48px; }
+
+/* ---- 按钮 ---- */
+.btn {
+  display: inline-block;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  font-weight: 600;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn:active { transform: scale(0.97); }
+
+.primary { background: var(--primary); color: #fff; }
+.primary:disabled { background: var(--primary-dim); opacity: 0.5; }
+
+.secondary { background: var(--border); color: var(--text); }
+
+.preset {
+  padding: 6px 12px;
+  font-size: 14px;
+  background: var(--border);
+  color: var(--text);
+}
+.preset.active { background: var(--primary); }
+
+.full { width: 100%; padding: 14px; font-size: 18px; }
+
+.icon { font-size: 20px; padding: 8px 14px; background: var(--border); color: var(--text); }
+
+/* ---- 分辨率 ---- */
+.preset-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.res-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.res-control label {
+  font-size: 14px;
+  color: var(--text-dim);
+  display: block;
+  margin-bottom: 4px;
+}
+.res-control label span { color: var(--primary); font-weight: bold; }
+
+.res-input-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.res-input-group input[type="range"] { flex: 1; padding: 0; }
+.res-input-group input[type="number"] { width: 72px; text-align: center; }
+
+#swapBtn { align-self: center; margin-top: 8px; }
+
+/* ---- 高级参数 ---- */
+.adv-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 8px;
+}
+.adv-grid label {
+  font-size: 14px;
+  color: var(--text-dim);
+}
+.adv-grid input, .adv-grid select { margin-top: 4px; }
+
+/* ---- details ---- */
+details summary {
+  font-size: 14px;
+  color: var(--text-dim);
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+/* ---- 状态栏 ---- */
+.status {
+  margin-top: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--border);
+  font-size: 14px;
+  text-align: center;
+  color: var(--text-dim);
+}
+.status.hidden { display: none; }
+.status.running { color: var(--primary); }
+
+/* ---- 结果 ---- */
+#resultImg {
+  width: 100%;
+  border-radius: 8px;
+  display: block;
+}
+
+.info-text {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--text-dim);
+  word-break: break-all;
+  line-height: 1.5;
+}
+
+/* ---- 历史 ---- */
+h3 { font-size: 14px; color: var(--text-dim); margin-bottom: 8px; }
+
+.history-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+}
+.history-scroll::-webkit-scrollbar { height: 4px; }
+.history-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.history-item {
+  flex-shrink: 0;
+  width: 100px;
+  cursor: pointer;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  transition: border-color 0.15s;
+}
+.history-item:active { border-color: var(--primary); }
+.history-item img {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  display: block;
+}
+
+/* ---- 翻译按钮加载态 ---- */
+#translateBtn.loading { opacity: 0.6; pointer-events: none; }
+
+/* ---- 滚动条全局 ---- */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
