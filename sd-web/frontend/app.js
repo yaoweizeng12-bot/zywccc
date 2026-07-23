@@ -1,14 +1,21 @@
-// ---- 配置 ----
-const TOKEN = 'sd-web-token-change-me';
 const API = '';
 
 function authHeaders() {
-  return { 'Authorization': `Bearer ${TOKEN}`, 'Content-Type': 'application/json' };
+  return { 'Content-Type': 'application/json' };
 }
 
 // ---- DOM 引用 ----
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
+
+const app = $('#app');
+const loginView = $('#loginView');
+const loginForm = $('#loginForm');
+const usernameInput = $('#usernameInput');
+const passwordInput = $('#passwordInput');
+const loginError = $('#loginError');
+const currentUser = $('#currentUser');
+const logoutBtn = $('#logoutBtn');
 
 const nlInput = $('#nlInput');
 const translateBtn = $('#translateBtn');
@@ -32,6 +39,7 @@ const samplerInput = $('#sampler');
 const advSummary = $('#advSummary');
 
 const generateBtn = $('#generateBtn');
+const cancelBtn = $('#cancelBtn');
 const statusBar = $('#statusBar');
 
 const resultSection = $('#resultSection');
@@ -85,14 +93,14 @@ widthSlider.addEventListener('input', () => setWidth(widthSlider.value));
 widthInput.addEventListener('change', () => {
   let v = +widthInput.value;
   v = Math.round(v / 8) * 8;
-  v = Math.max(256, Math.min(2048, v));
+  v = Math.max(256, Math.min(1536, v));
   setWidth(v);
 });
 heightSlider.addEventListener('input', () => setHeight(heightSlider.value));
 heightInput.addEventListener('change', () => {
   let v = +heightInput.value;
   v = Math.round(v / 8) * 8;
-  v = Math.max(256, Math.min(2048, v));
+  v = Math.max(256, Math.min(1536, v));
   setHeight(v);
 });
 
@@ -147,6 +155,7 @@ translateBtn.addEventListener('click', async () => {
 
 // ---- 生成 ----
 let generating = false;
+let currentTaskId = null;
 
 generateBtn.addEventListener('click', async () => {
   if (generating) return;
@@ -183,6 +192,8 @@ generateBtn.addEventListener('click', async () => {
       throw new Error(err.detail || '提交失败');
     }
     const { task_id } = await resp.json();
+    currentTaskId = task_id;
+    cancelBtn.classList.remove('hidden');
     statusBar.textContent = '排队中...';
 
     // 2. 长轮询等待完成
@@ -209,8 +220,24 @@ generateBtn.addEventListener('click', async () => {
     statusBar.classList.remove('running');
   } finally {
     generating = false;
+    currentTaskId = null;
+    cancelBtn.classList.add('hidden');
     generateBtn.disabled = false;
     generateBtn.textContent = '生成';
+  }
+});
+
+cancelBtn.addEventListener('click', async () => {
+  if (!currentTaskId) return;
+  cancelBtn.disabled = true;
+  try {
+    const resp = await fetch(`${API}/api/cancel`, {
+      method: 'POST', headers: authHeaders(), body: JSON.stringify({ task_id: currentTaskId }),
+    });
+    const data = await resp.json();
+    statusBar.textContent = data.cancelled ? '正在取消...' : '任务已经结束';
+  } finally {
+    cancelBtn.disabled = false;
   }
 });
 
@@ -219,11 +246,19 @@ async function loadHistory() {
   try {
     const resp = await fetch(`${API}/api/history?limit=30`, { headers: authHeaders() });
     const items = await resp.json();
-    historyList.innerHTML = items.map(item => `
-      <div class="history-item" data-url="${item.image_url}" data-params='${JSON.stringify(item.params)}'>
-        <img src="${item.image_url}" loading="lazy">
-      </div>
-    `).join('');
+    historyList.replaceChildren();
+    items.forEach(item => {
+      const el = document.createElement('div');
+      el.className = 'history-item';
+      el.dataset.url = item.image_url;
+      el.dataset.params = JSON.stringify(item.params);
+      const img = document.createElement('img');
+      img.src = item.image_url;
+      img.loading = 'lazy';
+      img.alt = '历史生成图片';
+      el.appendChild(img);
+      historyList.appendChild(el);
+    });
 
     // 点击历史项 → 放大查看
     $$('.history-item').forEach(el => {
@@ -248,8 +283,48 @@ async function loadHistory() {
   }
 }
 
-// ---- 页面初始化 ----
-loadHistory();
-highlightPreset();
-updateResSummary();
-updateAdvSummary();
+function showLogin() {
+  app.classList.add('hidden');
+  loginView.classList.remove('hidden');
+}
+
+function showApp(username) {
+  currentUser.textContent = username;
+  loginView.classList.add('hidden');
+  app.classList.remove('hidden');
+  loadHistory();
+}
+
+loginForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  loginError.textContent = '';
+  const resp = await fetch(`${API}/api/login`, {
+    method: 'POST', headers: authHeaders(),
+    body: JSON.stringify({ username: usernameInput.value.trim(), password: passwordInput.value }),
+  });
+  if (!resp.ok) {
+    const error = await resp.json().catch(() => ({}));
+    loginError.textContent = error.detail || '登录失败';
+    return;
+  }
+  const data = await resp.json();
+  passwordInput.value = '';
+  showApp(data.username);
+});
+
+logoutBtn.addEventListener('click', async () => {
+  await fetch(`${API}/api/logout`, { method: 'POST', headers: authHeaders() });
+  historyList.replaceChildren();
+  showLogin();
+});
+
+async function initialize() {
+  highlightPreset();
+  updateResSummary();
+  updateAdvSummary();
+  const resp = await fetch(`${API}/api/me`, { headers: authHeaders() });
+  if (resp.ok) showApp((await resp.json()).username);
+  else showLogin();
+}
+
+initialize();
