@@ -1,113 +1,106 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>SD 画图</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0d0f14">
+  <title>SD Pocket</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<div id="loginView" class="login-view">
-  <form id="loginForm" class="section login-card">
-    <h2>SD 画图登录</h2>
-    <input id="usernameInput" autocomplete="username" placeholder="用户名" required maxlength="32">
-    <input id="passwordInput" type="password" autocomplete="current-password" placeholder="密码" required maxlength="256">
-    <button class="btn primary full" type="submit">登录</button>
-    <div id="loginError" class="error-text"></div>
-  </form>
-</div>
-
-<div id="app" class="hidden">
-  <div class="user-bar"><span id="currentUser"></span><button id="logoutBtn" class="btn secondary">退出</button></div>
-  <!-- 自然语言输入 -->
-  <div class="section">
-    <textarea id="nlInput" placeholder="用中文描述画面，比如：夕阳下一个穿校服的女孩站在天台" rows="3"></textarea>
-    <button id="translateBtn" class="btn secondary">AI 增强</button>
+  <div id="loginView" class="login-view">
+    <form id="loginForm" class="login-card">
+      <div class="login-logo">S</div>
+      <div><h1>欢迎回来</h1><p>登录你的 SD Pocket</p></div>
+      <input id="usernameInput" autocomplete="username" placeholder="用户名" required maxlength="32">
+      <input id="passwordInput" type="password" autocomplete="current-password" placeholder="密码" required maxlength="256">
+      <button class="btn primary full" type="submit">登录</button>
+      <div id="loginError" class="error-text" role="alert"></div>
+    </form>
   </div>
 
-  <!-- SD 提示词 (翻译后自动填充) -->
-  <div class="section" id="promptSection">
-    <textarea id="promptInput" placeholder="正向提示词 (英文标签, 逗号分隔)"></textarea>
-    <details id="negDetail">
-      <summary>负面提示词</summary>
-      <textarea id="negInput" placeholder="负面提示词"></textarea>
-    </details>
-  </div>
+  <main id="app" class="shell hidden">
+    <header>
+      <div class="brand"><div class="logo">S</div><div><strong>SD Pocket</strong><small>Stable Diffusion</small></div></div>
+      <button id="logoutBtn" class="avatar" type="button" aria-label="退出登录"><span id="currentUser">U</span></button>
+    </header>
 
-  <!-- 分辨率 -->
-  <div class="section">
-    <details id="resDetail">
-      <summary id="resSummary">分辨率: 960 × 1280 (竖屏 3:4)</summary>
-      <div class="res-row">
-        <div class="preset-row">
-          <button class="btn preset" data-w="576" data-h="1024">9:16</button>
-          <button class="btn preset" data-w="768" data-h="1024">3:4</button>
-          <button class="btn preset" data-w="1024" data-h="1024">1:1</button>
-          <button class="btn preset" data-w="1024" data-h="768">4:3</button>
-          <button class="btn preset" data-w="1024" data-h="576">16:9</button>
+    <section class="hero"><h1>今天想画点什么？</h1><p>用自然语言描述，剩下的交给模型。</p></section>
+
+    <section class="card idea-card">
+      <div class="label-row"><label for="nlInput"><b>画面描述</b></label><button id="clearBtn" class="ghost" type="button">清空</button></div>
+      <textarea id="nlInput" placeholder="例如：黄昏的海边，短发女孩回头看向镜头，电影感光影……" rows="4"></textarea>
+      <button id="translateBtn" class="btn enhance" type="button">✦ <span>AI 优化提示词</span></button>
+    </section>
+
+    <section class="card" id="promptSection">
+      <details id="promptDetail">
+        <summary><span>英文提示词 · 点击编辑</span><span class="chev">⌄</span></summary>
+        <div class="detail-body">
+          <textarea id="promptInput" class="compact-text" placeholder="正向提示词（英文标签，逗号分隔）"></textarea>
+          <details id="negDetail" class="nested-detail">
+            <summary><span>负面提示词</span><span class="chev">⌄</span></summary>
+            <textarea id="negInput" class="compact-text" placeholder="负面提示词"></textarea>
+          </details>
         </div>
-        <div class="res-control">
-          <label>宽 <span id="wVal">960</span></label>
-          <div class="res-input-group">
-            <input type="range" id="widthSlider" min="256" max="1536" step="8" value="960">
-            <input type="number" id="widthInput" min="256" max="1536" step="8" value="960">
-          </div>
-        </div>
-        <button id="swapBtn" class="btn icon" title="交换宽高">↔</button>
-        <div class="res-control">
-          <label>高 <span id="hVal">1280</span></label>
-          <div class="res-input-group">
-            <input type="range" id="heightSlider" min="256" max="1536" step="8" value="1280">
-            <input type="number" id="heightInput" min="256" max="1536" step="8" value="1280">
-          </div>
-        </div>
+      </details>
+    </section>
+
+    <section class="card resolution-card">
+      <div class="label-row"><strong>画面比例</strong><button id="customToggle" class="ghost" type="button">自定义</button></div>
+      <div class="ratios">
+        <button class="ratio preset" data-w="576" data-h="1024" type="button"><i class="r916"></i>9:16</button>
+        <button class="ratio preset" data-w="768" data-h="1024" type="button"><i class="r34"></i>3:4</button>
+        <button class="ratio preset" data-w="1024" data-h="1024" type="button"><i class="r11"></i>1:1</button>
+        <button class="ratio preset" data-w="1024" data-h="768" type="button"><i class="r43"></i>4:3</button>
+        <button class="ratio preset" data-w="1024" data-h="576" type="button"><i class="r169"></i>16:9</button>
       </div>
-    </details>
-  </div>
-
-  <!-- 高级参数 -->
-  <div class="section">
-    <details id="advDetail">
-      <summary id="advSummary">高级参数: steps 20 / CFG 7 / DPM++ 2M Karras</summary>
-      <div class="adv-grid">
-        <label>Steps <input type="number" id="steps" value="20" min="1" max="60"></label>
-        <label>CFG <input type="number" id="cfg" value="7" min="1" max="20" step="0.5"></label>
-        <label>Seed <input type="number" id="seed" value="-1" min="-1"></label>
-        <label>采样器
-          <select id="sampler">
-            <option>DPM++ 2M Karras</option>
-            <option>Euler a</option>
-            <option>Euler</option>
-            <option>DPM++ 2M SDE Karras</option>
-            <option>DPM++ 2M</option>
-            <option>DDIM</option>
-          </select>
-        </label>
+      <div id="customSize" class="custom-size">
+        <label>宽度<input id="widthInput" type="number" inputmode="numeric" min="256" max="1536" step="8" value="960"></label>
+        <button id="swapBtn" class="swap" type="button" aria-label="交换宽高">↔</button>
+        <label>高度<input id="heightInput" type="number" inputmode="numeric" min="256" max="1536" step="8" value="1280"></label>
+        <button id="applySizeBtn" class="apply-size" type="button">应用</button>
       </div>
-    </details>
-  </div>
+      <div id="pixelMeter" class="meter"><span id="resSummary">960 × 1280 · 1.23MP</span><b id="sizeStatus">可生成</b></div>
+    </section>
 
-  <!-- 生成按钮 + 状态 -->
-  <div class="section">
-    <button id="generateBtn" class="btn primary full">生成</button>
-    <button id="cancelBtn" class="btn secondary full hidden" type="button">取消当前任务</button>
-    <div id="statusBar" class="status hidden"></div>
-  </div>
+    <section class="card">
+      <details id="advDetail">
+        <summary><span>高级参数</span><span id="advSummary" class="summary-value">20 Steps · CFG 7　⌄</span></summary>
+        <div class="adv-grid detail-body">
+          <label>Steps<input type="number" id="steps" value="20" min="1" max="60"></label>
+          <label>CFG<input type="number" id="cfg" value="7" min="1" max="20" step="0.5"></label>
+          <label>Seed<input type="number" id="seed" value="-1" min="-1" max="4294967295"></label>
+          <label>采样器<select id="sampler"><option>DPM++ 2M Karras</option><option>Euler a</option><option>Euler</option><option>DPM++ 2M SDE Karras</option><option>DPM++ 2M</option><option>DDIM</option></select></label>
+        </div>
+      </details>
+    </section>
 
-  <!-- 结果展示 -->
-  <div class="section" id="resultSection" style="display:none;">
-    <img id="resultImg" src="" alt="生成结果">
-    <div id="resultInfo" class="info-text"></div>
-  </div>
+    <div id="statusBar" class="status hidden" role="status"></div>
 
-  <!-- 历史记录 -->
-  <div class="section">
-    <h3>历史记录</h3>
-    <div id="historyList" class="history-scroll"></div>
-  </div>
-</div>
+    <section class="card result-card" id="resultSection" hidden>
+      <div class="result-head"><strong>最新作品</strong><span id="resultState">● 已完成</span></div>
+      <img id="resultImg" src="" alt="生成结果">
+      <div class="result-actions">
+        <button id="downloadBtn" class="result-action" type="button"><b>⇩</b>下载</button>
+        <button id="copyPromptBtn" class="result-action" type="button"><b>⧉</b>提示词</button>
+        <button id="rerollBtn" class="result-action" type="button"><b>↻</b>再来一张</button>
+        <button id="shareBtn" class="result-action" type="button"><b>⌁</b>分享</button>
+      </div>
+      <details class="result-meta"><summary>查看生成参数</summary><pre id="resultInfo"></pre></details>
+    </section>
 
-<script src="app.js"></script>
+    <div class="section-title"><h2>最近生成</h2><span>仅自己可见</span></div>
+    <section id="historyList" class="history-grid"><div class="empty-history">还没有作品，生成第一张吧</div></section>
+  </main>
+
+  <div id="actionDock" class="dock hidden">
+    <button id="randomIdeaBtn" class="mini" type="button" aria-label="随机灵感">✦</button>
+    <button id="generateBtn" class="btn primary generate" type="button">生成图片</button>
+    <button id="cancelBtn" class="btn cancel hidden" type="button">取消</button>
+  </div>
+  <div id="toast" class="toast" role="status"></div>
+  <div id="imageModal" class="modal" role="dialog" aria-label="全屏查看图片"><button id="closeModalBtn" class="modal-close" type="button" aria-label="关闭">×</button><img id="modalImg" alt="全屏生成图片"></div>
+  <script src="app.js"></script>
 </body>
 </html>
